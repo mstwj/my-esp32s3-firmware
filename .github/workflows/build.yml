@@ -21,34 +21,32 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y git wget libffi-dev build-essential python3-pip cmake ninja-build ccache dfu-util libssl-dev
+        sudo apt-get install -y git build-essential cmake ninja-build ccache dfu-util
 
     - name: Clone MicroPython
       run: |
         git clone --recursive https://github.com/micropython/micropython.git
         cd micropython
+        git checkout v1.22.0
         make -C mpy-cross
 
-    - name: Install ESP-IDF
-      run: |
-        git clone -b v5.0.4 --recursive https://github.com/espressif/esp-idf.git
-        cd esp-idf
-        ./install.sh esp32s3
-        . ./export.sh
+    - name: Setup ESP-IDF
+      uses: espressif/esp-idf-ci-action@v1
+      with:
+        esp-idf-version: 'v5.0.4'
 
     - name: Copy Modules and Build Firmware
       run: |
-        # 复制我们的 modules 目录到 micropython 冻结模块路径下
+        # 1. 复制 modules 目录下的 Python 代码到冻结模块路径
         cp -r modules/* micropython/ports/esp32/modules/
         
-        # 编译 ESP32-S3 固件
-        source esp-idf/export.sh
+        # 2. 编译支持 8MB PSRAM (SPIRAM_OCT) 的 ESP32-S3 固件
         cd micropython/ports/esp32
-        make BOARD=ESP32_GENERIC_S3 submodules
-        make BOARD=ESP32_GENERIC_S3
+        make BOARD=ESP32_GENERIC_S3 BOARD_VARIANT=SPIRAM_OCT submodules
+        make BOARD=ESP32_GENERIC_S3 BOARD_VARIANT=SPIRAM_OCT
 
     - name: Upload Firmware Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: esp32s3-frozen-firmware
-        path: micropython/ports/esp32/build-ESP32_GENERIC_S3/firmware.bin
+        name: esp32s3-n16r8-frozen-firmware
+        path: micropython/ports/esp32/build-ESP32_GENERIC_S3-SPIRAM_OCT/firmware.bin
