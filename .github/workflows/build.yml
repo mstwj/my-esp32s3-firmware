@@ -30,7 +30,13 @@ jobs:
       run: |
         git clone -b v5.0.2 --recursive https://github.com/espressif/esp-idf.git ~/esp-idf
         cd ~/esp-idf
+        # 安装工具链及全量 Python 依赖
         ./install.sh esp32s3
+        
+        # 强行在 ESP-IDF 虚拟环境里补全所有必要依赖包
+        VENV_PIP="/home/runner/.espressif/python_env/idf5.0_py3.10_env/bin/pip"
+        $VENV_PIP install --upgrade pip "setuptools<70.0.0" wheel
+        $VENV_PIP install -r ~/esp-idf/tools/requirements/requirements.core.txt
 
     - name: Copy Modules and Build Firmware
       run: |
