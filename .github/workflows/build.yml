@@ -7,20 +7,48 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
-    - name: Set up ESP-IDF and Build MicroPython
-      uses: michalhu/build-micropython-firmware-action@v1
+    - name: Set up Python
+      uses: actions/setup-python@v5
       with:
-        board: 'ESP32_GENERIC_S3'
-        custom_modules_path: 'modules'
+        python-version: '3.10'
 
-    - name: Upload Firmware
-      uses: actions/upload-artifact@v3
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git wget libffi-dev build-essential python3-pip cmake ninja-build ccache dfu-util libssl-dev
+
+    - name: Clone MicroPython
+      run: |
+        git clone --recursive https://github.com/micropython/micropython.git
+        cd micropython
+        make -C mpy-cross
+
+    - name: Install ESP-IDF
+      run: |
+        git clone -b v5.0.4 --recursive https://github.com/espressif/esp-idf.git
+        cd esp-idf
+        ./install.sh esp32s3
+        . ./export.sh
+
+    - name: Copy Modules and Build Firmware
+      run: |
+        # 复制我们的 modules 目录到 micropython 冻结模块路径下
+        cp -r modules/* micropython/ports/esp32/modules/
+        
+        # 编译 ESP32-S3 固件
+        source esp-idf/export.sh
+        cd micropython/ports/esp32
+        make BOARD=ESP32_GENERIC_S3 submodules
+        make BOARD=ESP32_GENERIC_S3
+
+    - name: Upload Firmware Artifact
+      uses: actions/upload-artifact@v4
       with:
         name: esp32s3-frozen-firmware
-        path: ports/esp32/build-ESP32_GENERIC_S3/firmware.bin
+        path: micropython/ports/esp32/build-ESP32_GENERIC_S3/firmware.bin
