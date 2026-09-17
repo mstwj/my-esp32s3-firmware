@@ -2,7 +2,7 @@ import urequests
 import json
 
 # 1. 请求后端 API 生成图片
-prompt_text = "画一只猫咪"
+prompt_text = "画一只猫咪123"
 api_url = f"https://www.passnow.tech/generate_bmp.php?prompt={prompt_text}"
 
 print("正在请求后端生成图片...")
