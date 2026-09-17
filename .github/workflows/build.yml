@@ -26,7 +26,7 @@ jobs:
 
     - name: Clone MicroPython
       run: |
-        git clone --depth 1 -b v1.22.0 https://github.com/micropython/micropython.git
+        git clone --depth 1 -b v1.22.0 https://github.com/micropython/micropython.git   
         cd micropython
         git submodule update --init lib/pico-sdk || true
         make -C mpy-cross
