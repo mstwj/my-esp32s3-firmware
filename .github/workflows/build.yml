@@ -31,9 +31,9 @@ jobs:
         git submodule update --init lib/pico-sdk || true
         make -C mpy-cross
 
-    - name: Install ESP-IDF (Official Toolchain)
+    - name: Install ESP-IDF (v5.0.2 Match MicroPython 1.22)
       run: |
-        git clone -b v5.0.4 --recursive https://github.com/espressif/esp-idf.git ~/esp-idf
+        git clone -b v5.0.2 --recursive https://github.com/espressif/esp-idf.git ~/esp-idf
         cd ~/esp-idf
         ./install.sh esp32s3
 
@@ -42,7 +42,7 @@ jobs:
         # 1. 激活乐鑫官方环境变量
         source ~/esp-idf/export.sh
         
-        # 2. 复制你的 Python 代码到冻结模块目录
+        # 2. 复制 Python 代码到冻结模块目录
         cp -r modules/* micropython/ports/esp32/modules/
         
         # 3. 编译适配 N16R8 (8MB PSRAM) 的 ESP32-S3 固件
