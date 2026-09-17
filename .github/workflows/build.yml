@@ -1,0 +1,26 @@
+name: Build MicroPython Firmware
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up ESP-IDF and Build MicroPython
+      uses: michalhu/build-micropython-firmware-action@v1
+      with:
+        board: 'ESP32_GENERIC_S3'
+        custom_modules_path: 'modules'
+
+    - name: Upload Firmware
+      uses: actions/upload-artifact@v3
+      with:
+        name: esp32s3-frozen-firmware
+        path: ports/esp32/build-ESP32_GENERIC_S3/firmware.bin
