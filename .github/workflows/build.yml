@@ -23,7 +23,6 @@ jobs:
         sudo apt-get update
         sudo DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
         sudo DEBIAN_FRONTEND=noninteractive apt-get install -y git build-essential cmake ninja-build ccache dfu-util libffi-dev libssl-dev libusb-1.0-0-dev python3-pip
-        python3 -m pip install --upgrade pip setuptools
 
     - name: Clone MicroPython
       run: |
@@ -40,8 +39,8 @@ jobs:
 
     - name: Copy Modules and Build Firmware
       run: |
-        # 1. 确保虚拟环境中包含 setuptools
-        python3 -m pip install setuptools
+        # 1. 强行在 ESP-IDF 的专属虚拟环境里补全 setuptools
+        /home/runner/.espressif/python_env/idf5.0_py3.10_env/bin/python -m pip install "setuptools<70.0.0"
         
         # 2. 激活乐鑫官方环境变量
         source ~/esp-idf/export.sh
