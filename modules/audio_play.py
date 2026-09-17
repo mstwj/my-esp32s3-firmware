@@ -8,9 +8,9 @@ class AudioPlayer:
 
     def __init__(
         self,
-        sck_pin=14, #BCKL --  sck
-        ws_pin=47,  #LRC --   ws 
-        sd_pin=21,  #DIN -- 
+        sck_pin=15,
+        ws_pin=16,
+        sd_pin=7,
         vol_up_pin=None,
         vol_down_pin=None,
         init_vol=0.4,

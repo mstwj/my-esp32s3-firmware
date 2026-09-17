@@ -10,8 +10,6 @@ AP_PWD = ""
 WIFI_CFG_FILE = "wifi.cfg"
 
 sta_wlan = network.WLAN(network.STA_IF)
-sta_wlan.active(True)
-
 ap_wlan = network.WLAN(network.AP_IF)
 
 
