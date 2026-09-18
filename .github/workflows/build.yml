@@ -30,23 +30,21 @@ jobs:
       run: |
         git clone -b v5.0.2 --recursive https://github.com/espressif/esp-idf.git ~/esp-idf
         cd ~/esp-idf
-        # 安装工具链及全量 Python 依赖
         ./install.sh esp32s3
-        
-        # 强行在 ESP-IDF 虚拟环境里补全所有必要依赖包
-        VENV_PIP="/home/runner/.espressif/python_env/idf5.0_py3.10_env/bin/pip"
-        $VENV_PIP install --upgrade pip "setuptools<70.0.0" wheel
-        $VENV_PIP install -r ~/esp-idf/tools/requirements/requirements.core.txt
 
     - name: Copy Modules and Build Firmware
       run: |
         # 1. 激活 ESP-IDF 官方环境变量
         source ~/esp-idf/export.sh
         
-        # 2. 复制 Python 代码到冻结模块目录
+        # 2. 强行补全当前 ESP-IDF 虚拟环境缺少的所有 Python 包
+        python -m pip install "setuptools<70.0.0" ruamel.yaml
+        python -m pip install -r ~/esp-idf/tools/requirements/requirements.core.txt
+        
+        # 3. 复制 Python 代码到冻结模块目录
         cp -r modules/* micropython/ports/esp32/modules/
         
-        # 3. 编译适配 N16R8 (8MB PSRAM) 的 ESP32-S3 固件
+        # 4. 编译适配 N16R8 (8MB PSRAM) 的 ESP32-S3 固件
         cd micropython/ports/esp32
         make BOARD=ESP32_GENERIC_S3 BOARD_VARIANT=SPIRAM_OCT submodules
         make BOARD=ESP32_GENERIC_S3 BOARD_VARIANT=SPIRAM_OCT
